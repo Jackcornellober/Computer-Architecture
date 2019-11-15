@@ -11,6 +11,9 @@ class CPU:
         self.ram = [0] * 256
         self.register = [0] * 8
         self.pc = 0
+        self.equal = 0
+        self.greater = 0
+        self.lesser = 0
 
     def load(self):
 
@@ -70,7 +73,6 @@ class CPU:
         halted = False
         self.pc = 0
         while not halted:
-            print('pc', self.pc)
             instruction = self.ram_read(self.pc)
 
             
@@ -84,6 +86,37 @@ class CPU:
             elif instruction == 0b10100010:
                 self.register[self.ram_read(self.pc+1)] = self.register[self.ram_read(self.pc+1)] * self.register[self.ram_read(self.pc+2)]
                 self.pc += 3
+            
+            elif instruction == 0b10100111:
+                if self.register[self.ram_read(self.pc+1)] > self.register[self.ram_read(self.pc+2)]:
+                    self.greater = 1
+                    self.equal = 0
+                    self.lesser = 0
+                elif self.register[self.ram_read(self.pc+1)] == self.register[self.ram_read(self.pc+2)]:
+                    self.greater = 0
+                    self.equal = 1
+                    self.lesser = 0
+                elif self.register[self.ram_read(self.pc+1)] < self.register[self.ram_read(self.pc+2)]:
+                    self.greater = 0
+                    self.equal = 0
+                    self.lesser = 1
+                self.pc +=3
+            
+            elif instruction == 0b01010100:
+                self.pc = self.register[self.ram_read(self.pc+1)]
+            
+            elif instruction == 0b01010101:
+                if self.equal == 1:
+                    self.pc = self.register[self.ram_read(self.pc+1)]
+                else:
+                    self.pc += 2
+
+            elif instruction == 0b01010110:
+                if self.equal == 0:
+                    self.pc = self.register[self.ram_read(self.pc+1)]
+                else:
+                    self.pc += 2
+                    
 
             elif instruction == 1:
             	halted = True
